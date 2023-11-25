@@ -1,3 +1,4 @@
+grupo, Alvaro, Matheus Parada, Willer
 import math
 
 tabuleiro = [" ", " ", " ", " ", " ", " ", " ", " ", " "]
