@@ -1,0 +1,112 @@
+import math
+
+tabuleiro = [" ", " ", " ", " ", " ", " ", " ", " ", " "]
+jogador = "X"
+computador = "O"
+
+
+def imprimir_tabuleiro():
+  print(tabuleiro[0] + "|" + tabuleiro[1] + "|" + tabuleiro[2])
+  print("-+-+-")
+  print(tabuleiro[3] + "|" + tabuleiro[4] + "|" + tabuleiro[5])
+  print("-+-+-")
+  print(tabuleiro[6] + "|" + tabuleiro[7] + "|" + tabuleiro[8])
+
+
+def tabuleiro_cheio():
+  return all(cell != " " for cell in tabuleiro)
+
+
+def vencedor(simbolo):
+  win_conditions = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],  # Linhas
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],  # Colunas
+      [0, 4, 8],
+      [2, 4, 6]  # Diagonais
+  ]
+  for condition in win_conditions:
+    if tabuleiro[condition[0]] == tabuleiro[condition[1]] == tabuleiro[
+        condition[2]] == simbolo:
+      return True
+  return False
+
+
+def avaliar():
+  if vencedor(computador):
+    return 10
+  if vencedor(jogador):
+    return -10
+  return 0
+
+
+def minmax(profundidade, eh_max):
+  pontuacao = avaliar()
+  if pontuacao == 10 or pontuacao == -10:
+    return pontuacao
+  if tabuleiro_cheio():
+    return 0
+
+  if eh_max:
+    melhor = -math.inf
+    for i in range(9):
+      if tabuleiro[i] == " ":
+        tabuleiro[i] = computador
+        melhor = max(melhor, minmax(profundidade + 1, False))
+        tabuleiro[i] = " "
+    return melhor
+  else:
+    melhor = math.inf
+    for i in range(9):
+      if tabuleiro[i] == " ":
+        tabuleiro[i] = jogador
+        melhor = min(melhor, minmax(profundidade + 1, True))
+        tabuleiro[i] = " "
+    return melhor
+
+
+def melhor_movimento():
+  melhor = -math.inf
+  movimento = -1
+  for i in range(9):
+    if tabuleiro[i] == " ":
+      tabuleiro[i] = computador
+      pontuacao = minmax(0, False)
+      tabuleiro[i] = " "
+      if pontuacao > melhor:
+        melhor = pontuacao
+        movimento = i
+  return movimento
+
+
+def jogar():
+  imprimir_tabuleiro()
+  while True:
+    if tabuleiro_cheio():
+      print("O jogo terminou em empate.")
+      break
+    posicao = int(input("Escolha uma posição de 1 a 9: ")) - 1
+    while posicao < 0 or posicao > 8 or tabuleiro[posicao] != " ":
+      posicao = int(
+          input("Posição inválida. Escolha outra posição de 1 a 9: ")) - 1
+    tabuleiro[posicao] = jogador
+    imprimir_tabuleiro()
+    if vencedor(jogador):
+      print("Parabéns, você ganhou!")
+      break
+    if tabuleiro_cheio():
+      print("O jogo terminou em empate.")
+      break
+    movimento = melhor_movimento()
+    tabuleiro[movimento] = computador
+    print("O computador jogou na posição", movimento + 1)
+    imprimir_tabuleiro()
+    if vencedor(computador):
+      print("Você perdeu. Tente novamente.")
+      break
+
+
+jogar()
